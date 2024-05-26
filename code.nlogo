@@ -13,6 +13,7 @@ to setup
 
   set first_color 10
   set second_color 80
+
   init_turtles_color
 
   update_followed
@@ -35,7 +36,6 @@ end
 
 
 
-
 ;Crea le turtles delle persone
 to create_turtles
   clear-all
@@ -51,7 +51,7 @@ to create_turtles
     setxy max-pxcor - x max-pycor - y;
     set color white
     set shape "person"
-    set notoriety choose-probability influencer_ratio vip_ratio
+    set notoriety choose_probability influencer_ratio vip_ratio
     set size notoriety * 2.5 + 0.3
 
     set followers []
@@ -96,11 +96,11 @@ end
 ;Inizilizza la credibilità di una persona
 to init_turtles_credibility
   ask turtles [
-    set credibility return_random_credibility
+    set credibility random_credibility
   ]
 end
 
-to-report return_random_credibility
+to-report random_credibility
   let cred random-normal mean_credibility 0.2
   if cred < 0 [set cred 0]
   if cred > 1 [set cred 1]
@@ -143,7 +143,7 @@ end
 
 ;Sceglie quanto una persona è influente
 ;ricevendo in input le probabilità che una persona sia un influencer o che comunque sia popolare
-to-report choose-probability [p1 p2]
+to-report choose_probability [p1 p2]
 
   let min_influencer 0.3
   let max_influencer 0.5
@@ -164,24 +164,6 @@ to-report choose-probability [p1 p2]
   report min_norm + random (max_norm - min_norm)
 end
 
-
-;to-report choose-probability_single [p1]
-;
-;  let min_influencer 0.3
-;  let max_influencer 0.5
-;
-;  let min_norm 0.01
-;  let max_norm 0.10
-;
-;  let r random-float 1.00
-;
-;
-;  if r < p1 [
-;    report min_influencer + random-float (max_influencer - min_influencer)
-;  ]
-;
-;  report min_norm + random-float (max_norm - min_norm)
-;end
 
 
 ;INIZIO: Gesione dei followers
@@ -260,7 +242,7 @@ end
 ;Funzioni per calcolare l'energia H e delta H
 
 to-report init_energy
-  let tmp_energy 0
+  let system_energy 0
   let new_opinion 0
   ask turtles[
     set new_opinion 0
@@ -275,11 +257,11 @@ to-report init_energy
 
     set new_opinion new_opinion + coherence * opinion
 
-    set tmp_energy tmp_energy + opinion * new_opinion
+    set system_energy system_energy + opinion * new_opinion
   ]
-  set tmp_energy ( - J * tmp_energy )
+  set system_energy ( - J * system_energy )
 
-  report tmp_energy
+  report system_energy
 end
 
 to-report get_delta_H [turtle_id]
@@ -457,7 +439,7 @@ sqrt_n_turtles
 sqrt_n_turtles
 0
 20
-14.0
+10.0
 1
 1
 NIL
@@ -534,7 +516,7 @@ coherence
 coherence
 0
 1
-0.5
+1.0
 0.01
 1
 NIL
@@ -549,7 +531,7 @@ beta
 beta
 0
 5
-0.2
+5.0
 0.1
 1
 NIL
@@ -564,7 +546,7 @@ mean_credibility
 mean_credibility
 0
 1
-0.5
+0.53
 0.01
 1
 NIL
@@ -662,7 +644,7 @@ J
 J
 -3
 3
--0.8
+0.0
 0.1
 1
 NIL
@@ -796,7 +778,7 @@ imposed_credibility
 imposed_credibility
 0
 1
-0.13
+0.23
 0.01
 1
 NIL
