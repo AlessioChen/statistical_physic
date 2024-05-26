@@ -320,13 +320,22 @@ to update_opinion
   let change set_opinion exp(- delta_h * beta)
   ask turtle i[
     if delta_h < 0 or change < 0 [
-      set opinion -1 * opinion
+      set opinion -1 * opinion       ;FIXME Valutare se cambiare con flip_opinion
       set_color credibility opinion
       set energy energy + delta_h
     ]
   ]
 end
 
+to flip_opinion [id]
+  ask turtle id [
+    ifelse opinion = first_opinion [
+      set opinion second_opinion
+    ][
+      set opinion first_opinion
+    ]
+  ]
+end
 
 
 ;INIZIO: FUNZIONI DI PLOT
@@ -358,13 +367,25 @@ end
 
 ;INIZIO: GOD-MODE
 to god_mode
-    if mouse-down? [
-      let clicked-turtle one-of turtles-here_
-      if clicked-turtle != nobody [
-          show (word "Hai cliccato sulla tartaruga con who: " [who] of clicked-turtle)
+  if mouse-down? [
+    let clicked-turtle one-of turtles-here_
+    if clicked-turtle != nobody [
+      show (word "Hai cliccato sulla tartaruga con who: " [who] of clicked-turtle)
+      ask turtle [who] of clicked-turtle[
+        if change_credibility [
+          set credibility imposed_credibility
+        ]
+        if change_opinion [
+          flip_opinion [who] of clicked-turtle
+        ]
+        if change_credibility or change_opinion [
+          set_color credibility opinion
+        ]
 
       ]
+
     ]
+  ]
 end
 
 to-report turtles-here_
@@ -543,7 +564,7 @@ mean_credibility
 mean_credibility
 0
 1
-1.0
+0.5
 0.01
 1
 NIL
@@ -663,10 +684,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-1170
-652
-1264
-685
+1500
+321
+1594
+354
 God Mode
 god_mode
 T
@@ -698,10 +719,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot energy"
 
 MONITOR
-1331
-611
-1429
-656
+1321
+610
+1419
+655
 Energy
 energy
 17
@@ -743,6 +764,43 @@ NIL
 NIL
 NIL
 1
+
+SWITCH
+1501
+363
+1673
+396
+change_credibility
+change_credibility
+0
+1
+-1000
+
+SWITCH
+1504
+461
+1676
+494
+change_opinion
+change_opinion
+1
+1
+-1000
+
+SLIDER
+1501
+396
+1675
+429
+imposed_credibility
+imposed_credibility
+0
+1
+0.13
+0.01
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
