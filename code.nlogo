@@ -1,172 +1,137 @@
-extensions [matrix]
-turtles-own [credibility followed_people notoriety opinion followers]
-globals [n_turtles first_opinion second_opinion first_color second_color energy]
+globals [first_opinion second_opinion first_palette second_palette number-of-turtles energy]
+turtles-own[credibility notoriety opinion followed_people followers]
+
 
 to setup
-  create_turtles
-
-  init_turtles_credibility
-
-  set first_opinion 1
-  set second_opinion -1
-  init_opinion (opinion_distribution)
-
-  set first_color 10
-  set second_color 80
-
-  init_turtles_color
-
-  update_followed
-
-  set energy init_energy
-  show energy
-
+  clear-all
+  reset-ticks
   setup-plots
 
-  reset-ticks
+  set number-of-turtles  square_size * square_size
+  let columns floor (sqrt number-of-turtles)
+  let rows ceiling (number-of-turtles / columns)
+  let x-spacing max-pxcor  / (columns)
+  let y-spacing max-pycor / (rows)
+
+  set-default-shape turtles "person"
+  set first_opinion 1
+  set second_opinion -1
+  set first_palette 10
+  set second_palette 80
+
+
+  let n 0
+  let n_col 1
+  let n_row 0
+  let numero 0
+
+  while [n < number-of-turtles] [
+    if n_col > columns [
+      set n_col 1
+      set n_row n_row + 1
+    ]
+    create-turtles 1 [
+      setxy (n_col  * x-spacing - x-spacing / 2) (n_row * y-spacing + y-spacing / 2)
+
+      set notoriety choose-probability influencer_probability
+
+      set opinion set_opinion first_opinion_percentage
+      set credibility random-normal mean_of_credibility 0.2
+
+      set color set_color credibility opinion
+
+      set followed_people []
+      set followers []
+    ]
+
+    set n n + 1
+    set n_col n_col + 1
+  ]
+
+  update-followed
+  update_size
+  init_energy
+
+
 end
 
 
 to go
-
+  update-plot
+  tick
   update_opinion
-  update-plots
-
 end
 
 
 
-;Crea le turtles delle persone
-to create_turtles
-  clear-all
-  set n_turtles square(sqrt_n_turtles)
-  create-turtles n_turtles[
-
-    let rows ceiling (sqrt(n_turtles))
-    let columns ceiling(n_turtles / rows)
-    let px max-pxcor / columns
-    let py max-pycor / rows
-    let x (who mod columns) * px + (px / 2)
-    let y floor(who / columns) * py + (py / 2)
-    setxy max-pxcor - x max-pycor - y;
-    set color white
-    set shape "person"
-    set notoriety choose_probability influencer_ratio vip_ratio
-    set size notoriety * 2.5 + 0.3
-
-    set followers []
-    set followed_people []
 
 
-  ]
-end
 
-to-report square [n]
-  report n * n
-end
-
-;Inizializza l'opinione di una persona
-to init_opinion [distribution]
-  ask turtles[
-    let r random-float 1.0
-    ;let first_opinion 1
-    ;let second_opinion -1
-    ifelse r < distribution
-    [set opinion first_opinion]
-    [set opinion second_opinion]
-  ]
-end
-
-
-to-report set_opinion [distribution]
-  let r random-float 1.00
-  if r < distribution [
-    report second_opinion
-  ]
-  report first_opinion
-end
-
-;to-report get_opinion[turtle_id]
-;  let id turtle_id
-;  ask turtles id [
-;    report opinion
-;  ]
-;end
-
-;Inizilizza la credibilità di una persona
-to init_turtles_credibility
-  ask turtles [
-    set credibility random_credibility
-  ]
-end
-
-to-report random_credibility
-  let cred random-normal mean_credibility 0.2
-  if cred < 0 [set cred 0]
-  if cred > 1 [set cred 1]
-  report cred
-end
-
-; INIZIO: Gestione del colore
-
-to init_turtles_color
-  ask turtles [
-    ifelse opinion = 1
-    [ set color first_color + get_color_shade_from_credibility(credibility)]
-    [ set color second_color + get_color_shade_from_credibility(credibility)]
-  ]
-end
-
-to-report get_color_shade_from_credibility[cred]
-  (ifelse
-    cred > 0.80 [ report 2.5 ]
-    cred <= 0.80 and cred > 0.60 [report 4]
-    cred <= 0.60 and cred > 0.40 [report 5.5]
-    cred <= 0.40 and cred > 0.20 [report 7]
-    cred <= 0.20 [report 8.5]
-  )
-end
-
-to set_color[cred opin]
-  ifelse opinion = 1
-    [ set color first_color + get_color_shade_from_credibility(credibility)]
-    [ set color second_color + get_color_shade_from_credibility(credibility)]
-end
-
-; FINE: Gestione del colore
-
-to init_follow_matrix
-  let m matrix:make-identity n_turtles
-
-end
-
-
-;Sceglie quanto una persona è influente
-;ricevendo in input le probabilità che una persona sia un influencer o che comunque sia popolare
-to-report choose_probability [p1 p2]
+to-report choose-probability [p1]
 
   let min_influencer 0.3
   let max_influencer 0.5
 
-  let min_med 0.15
-  let max_med 0.2
+  let min_norm 0.01
+  let max_norm 0.10
 
-  let min_norm 0.05
-  let max_norm 0.1
+  let r random-float 1.00
 
-  let r random-float 1.0
+
   if r < p1 [
-    report min_influencer + random (max_influencer - min_influencer)
+    report min_influencer + random-float (max_influencer - min_influencer)
   ]
-  if r >= p1 and r < p2 [                  ;if r >= p1 and r < (p1 + p2) [
-    report min_med + random (max_med - min_med)
-  ]
-  report min_norm + random (max_norm - min_norm)
+
+  report min_norm + random-float (max_norm - min_norm)
 end
 
+to-report set_opinion [p1]
+
+  let r random-float 1.00
+
+  if r < p1 [
+    report second_opinion
+  ]
+
+  report first_opinion
+end
+
+to-report set_color [cred opin]
+
+  let palette 0
+
+  if opin = first_opinion [
+    set palette first_palette
+  ]
+
+  if opin = second_opinion [
+    set palette second_palette
+  ]
 
 
-;INIZIO: Gesione dei followers
+  if cred > 0.8 [
+    report 2.5 + palette
+  ]
+
+  if cred <= 0.8 and cred > 0.6 [
+    report 4 + palette
+  ]
+
+  if cred <= 0.6 and cred > 0.4 [
+    report 5.5 + palette
+  ]
+
+  if cred <= 0.4 and cred > 0.2 [
+    report 7 + palette
+  ]
+
+  if cred <= 0.2 [
+  report 8.5 + palette
+
+  ]
+
+
+end
 
 to-report return_follower [prob]
   let r random-float 1.00
@@ -178,8 +143,11 @@ to-report return_follower [prob]
   report 0
 end
 
-to update_followed
+to update-followed
+
   let new_follower 0
+
+
   ask turtles [
 
     let out_turtle_notoriety notoriety
@@ -201,51 +169,32 @@ to update_followed
   ]
 end
 
-;FINE Gestione dei follower
-
 to update_size
   ask turtles [
-    let n_followers (length followers / n_turtles)
+    let n_followers (length followers / number-of-turtles)
     set size n_followers * 3.9 + 0.9
     ;show length followers
   ]
 
 end
 
-;to update_opinion_old
-;  ask turtles [
-;    let new_opinion 0
-;    let n_neighbors length followed_people
-;
-;    if n_neighbors != 0 [
-;      foreach followed_people [id ->
-;        ask turtle id [
-;          set new_opinion new_opinion + credibility * opinion / n_neighbors
-;        ]
-;      ]
-;    ]
-;
-;    set new_opinion J * new_opinion + coherence * opinion * set_opinion change_probability
-;
-;    if new_opinion > 0 [
-;      set opinion first_opinion
-;      set_color credibility opinion
-;    ]
-;
-;    if new_opinion < 0 [
-;      set opinion second_opinion
-;      set_color credibility opinion
-;    ]
-;  ]
-;end
+to update-plot
+  set-current-plot "Sum of Spins Over Time"
+  set-current-plot-pen "Sum of Spins"
+  let sum-spins sum [opinion] of turtles
+  set sum-spins sum-spins / number-of-turtles
+  plotxy ticks sum-spins
 
-;Funzioni per calcolare l'energia H e delta H
+end
 
-to-report init_energy
-  let system_energy 0
+to init_energy
   let new_opinion 0
+  set energy 0
+  let spin_interaction 0
+  let external_mag 0
   ask turtles[
     set new_opinion 0
+    set external_mag external_mag + opinion
     let n_neighbors length followed_people
     if n_neighbors != 0 [
       foreach followed_people [id ->
@@ -253,137 +202,59 @@ to-report init_energy
           set new_opinion new_opinion + credibility * opinion / n_neighbors
         ]
       ]
+      ;set new_opinion new_opinion + coherence * opinion
+      set spin_interaction spin_interaction + opinion * new_opinion
     ]
-
-    set new_opinion new_opinion + coherence * opinion
-
-    set system_energy system_energy + opinion * new_opinion
   ]
-  set system_energy ( - J * system_energy )
 
-  report system_energy
+  set energy -1 * J * (spin_interaction + h * external_mag)
+
 end
 
 to-report get_delta_H [turtle_id]
   let delta_h 0
+  let neighbors_influence 0
   ask turtle turtle_id [
-    let neighbors_influence 0
+    set neighbors_influence 0
     let n_neighbors length followed_people
     if n_neighbors != 0 [
       foreach followed_people [id ->
         ask turtle id [
-          set neighbors_influence neighbors_influence + credibility * opinion / n_neighbors
+          set neighbors_influence neighbors_influence + credibility * opinion
         ]
       ]
-    set delta_h 2 * opinion * J * (neighbors_influence + coherence * opinion)
+    set delta_h 2 * opinion * ( J * neighbors_influence / n_neighbors + h + coherence * opinion)
     ]
   ]
   report delta_h
 end
 
-;to update_opinion    ;OLD VERSION
-;  let i random n_turtles
-;  let delta_h get_delta_H i
-;  let new_opinion 0
-;  let beta 1
-;  let p exp(- delta_h * beta)
-;  ask turtle i[
-;    ifelse delta_h <= 0 [
-;      set opinion -1 * opinion
-;    ][
-;      set opinion set_opinion p
-;    ]
-;  ]
-;end
-
 to update_opinion
-  let i random n_turtles
+  let i random number-of-turtles
   let delta_h get_delta_H i
   let change set_opinion exp(- delta_h * beta)
-  ask turtle i[
-    if delta_h < 0 or change < 0 [
-      set opinion -1 * opinion       ;FIXME Valutare se cambiare con flip_opinion
-      set_color credibility opinion
-      set energy energy + delta_h
+
+  if delta_h <= 0 or change < 0 [
+    ask turtle i[
+      set opinion -1 * opinion
+      set color set_color credibility opinion
     ]
+    init_energy
   ]
-end
 
-to flip_opinion [id]
-  ask turtle id [
-    ifelse opinion = first_opinion [
-      set opinion second_opinion
-    ][
-      set opinion first_opinion
-    ]
-  ]
+
 end
 
 
-;INIZIO: FUNZIONI DI PLOT
-
-to-report get_magnetization
-  let n_first_opinion count turtles with [ opinion = first_opinion ]
-  let n_second_opinion count turtles with [ opinion = second_opinion ]
-  report n_first_opinion * first_opinion + n_second_opinion * second_opinion
-end
-
-
-to update-plot-exp
-  set-current-plot "Exponential Plot"
-  set-current-plot-pen "exp-curve"
-  clear-plot
-  let max_delta_h 10  ; Definisci il massimo valore di Delta H per il plot
-  let step 0.1        ; Definisci il passo per Delta H
-
-  ; Itera su un range di valori di Delta H e plottali
-  let delta_h -5
-  while [delta_h <= max_delta_h] [
-    plotxy delta_h exp(- delta_h * beta)
-    set delta_h delta_h + step
-  ]
-end
-
-;FINE: FUNZIONI DI PLOT
-
-
-;INIZIO: GOD-MODE
-to god_mode
-  if mouse-down? [
-    let clicked-turtle one-of turtles-here_
-    if clicked-turtle != nobody [
-      show (word "Hai cliccato sulla tartaruga con who: " [who] of clicked-turtle)
-      ask turtle [who] of clicked-turtle[
-        if change_credibility [
-          set credibility imposed_credibility
-        ]
-        if change_opinion [
-          flip_opinion [who] of clicked-turtle
-        ]
-        if change_credibility or change_opinion [
-          set_color credibility opinion
-        ]
-
-      ]
-
-    ]
-  ]
-end
-
-to-report turtles-here_
-  report turtles with [round pxcor = round mouse-xcor and round pycor = round mouse-ycor]
-end
-
-;FINE: GOD-MODE
 @#$#@#$#@
 GRAPHICS-WINDOW
-35
-26
-788
-780
+15
+12
+623
+621
 -1
 -1
-43.824
+17.152
 1
 10
 1
@@ -394,9 +265,9 @@ GRAPHICS-WINDOW
 1
 1
 0
-16
+34
 0
-16
+34
 0
 0
 1
@@ -404,10 +275,10 @@ ticks
 30.0
 
 BUTTON
-873
-357
-939
-390
+631
+399
+887
+435
 setup
 setup
 NIL
@@ -420,68 +291,58 @@ NIL
 NIL
 1
 
-TEXTBOX
-41
-10
-191
-28
-Matrice delle opinioni
-11
-0.0
-1
-
 SLIDER
-832
-92
-1005
-125
-sqrt_n_turtles
-sqrt_n_turtles
+636
+36
+875
+69
+square_size
+square_size
 0
 20
-10.0
+20.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-830
-190
-1002
-223
-vip_ratio
-vip_ratio
+637
+87
+876
+120
+influencer_probability
+influencer_probability
 0
 1
-0.09
+0.05
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-831
-138
-1003
-171
-influencer_ratio
-influencer_ratio
+638
+136
+878
+169
+mean_of_credibility
+mean_of_credibility
 0
-vip_ratio
-0.04
+1
+0.5
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-830
-240
-1002
-273
-opinion_distribution
-opinion_distribution
+639
+184
+879
+217
+first_opinion_percentage
+first_opinion_percentage
 0
 1
 0.5
@@ -491,11 +352,11 @@ NIL
 HORIZONTAL
 
 BUTTON
-836
-554
-899
-587
-go
+635
+461
+882
+494
+go / stop
 go
 T
 1
@@ -508,185 +369,83 @@ NIL
 1
 
 SLIDER
-833
-414
-1005
-447
+634
+332
+884
+365
 coherence
 coherence
 0
-1
-1.0
+5
+0.55
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-834
-466
-1006
-499
+635
+504
+884
+537
 beta
 beta
 0
 5
-5.0
+2.5
 0.1
 1
 NIL
 HORIZONTAL
 
+PLOT
+914
+45
+1410
+251
+Sum of Spins Over Time
+Time
+Sum of spins
+0.0
+500.0
+0.0
+1.0
+true
+false
+"" ""
+PENS
+"Sum of Spins" 1.0 0 -5298144 true "" ""
+
 SLIDER
-828
-281
-1000
-314
-mean_credibility
-mean_credibility
-0
+637
+233
+880
+266
+J
+J
+-1
 1
-0.53
+0.16
 0.01
 1
 NIL
 HORIZONTAL
 
-MONITOR
-1014
-82
-1083
-127
-n_turtles
-square sqrt_n_turtles
-17
-1
-11
-
-PLOT
-1120
-59
-1420
-243
-Red_Turtles
-NIL
-NIL
+TEXTBOX
+718
+12
+805
+30
+Set up Variables
+10
 0.0
-10.0
-0.0
-10.0
-true
-false
-"" "\n"
-PENS
-"default" 1.0 0 -2674135 true "" "plot count turtles with [opinion = 1] "
-"pen-1" 1.0 0 -16777216 true "" "plot count turtles"
-"pen-2" 1.0 0 -11221820 true "" "plot count turtles with [opinion = -1] "
-
-BUTTON
-926
-556
-1011
-589
-one step
-go
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-PLOT
-1120
-245
-1421
-405
-Magnetization
-NIL
-NIL
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot get_magnetization"
-
-BUTTON
-1176
-17
-1274
-50
-Clear plots
-clear-all-plots
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-835
-511
-1007
-544
-J
-J
--3
-3
-0.0
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-833
-320
-1005
-353
-var_credibility
-var_credibility
 0
-0.5
-0.2
-0.1
-1
-NIL
-HORIZONTAL
-
-BUTTON
-1500
-321
-1594
-354
-God Mode
-god_mode
-T
-1
-T
-TURTLE
-NIL
-NIL
-NIL
-NIL
-1
 
 PLOT
-1119
-409
-1418
-605
+915
+276
+1407
+462
 Energy
 NIL
 NIL
@@ -700,85 +459,16 @@ false
 PENS
 "default" 1.0 0 -16777216 true "" "plot energy"
 
-MONITOR
-1321
-610
-1419
-655
-Energy
-energy
-17
-1
-11
-
-PLOT
-1459
-61
-1753
-259
-Exponential Plot
-Delta H
-P
--2.0
-2.0
-0.0
-1.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot count turtles"
-"exp-curve" 1.0 0 -16777216 true "" ""
-
-BUTTON
-1459
-26
-1660
-59
-Update probability function
-update-plot-exp
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SWITCH
-1501
-363
-1673
-396
-change_credibility
-change_credibility
-0
-1
--1000
-
-SWITCH
-1504
-461
-1676
-494
-change_opinion
-change_opinion
-1
-1
--1000
-
 SLIDER
-1501
-396
-1675
-429
-imposed_credibility
-imposed_credibility
-0
+634
+282
+884
+315
+h
+h
+-1
 1
-0.23
+0.21
 0.01
 1
 NIL
