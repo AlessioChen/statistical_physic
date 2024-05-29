@@ -204,7 +204,7 @@ end
 to update_size
   ask turtles [
     let n_followers (length followers / number-of-turtles)
-    set size n_followers * 3.9 + 0.9
+    set size n_followers * 3 + 0.7
     ;show length followers
   ]
 
@@ -493,8 +493,7 @@ to piramid_setup
   ask turtle triangle_id [
     set followed_people []
     set followers triangle_followers
-    set size 3.5
-
+    set size 3
   ]
 end
 
@@ -580,7 +579,7 @@ square_size
 square_size
 0
 20
-17.0
+19.0
 1
 1
 NIL
@@ -679,10 +678,10 @@ NIL
 HORIZONTAL
 
 PLOT
-1037
-29
-1449
-235
+900
+32
+1312
+238
 Sum of Spins Over Time
 Time
 Sum of spins
@@ -737,10 +736,10 @@ NIL
 HORIZONTAL
 
 PLOT
-1037
-243
-1450
-393
+900
+246
+1313
+396
 Magnetization vs Beta
 NIL
 NIL
@@ -758,10 +757,10 @@ PENS
 "C4" 1.0 0 -16449023 true "" ""
 
 BUTTON
-1153
-557
-1262
-590
+1016
+560
+1125
+593
 Run simulation
 run_simulation
 NIL
@@ -775,50 +774,50 @@ NIL
 1
 
 TEXTBOX
-1461
-263
-1611
-281
+1324
+266
+1474
+284
 Coherence = 
 10
 0.0
 0
 
 TEXTBOX
-1461
-322
-1611
-340
+1324
+325
+1474
+343
 Coherence = 
 10
 15.0
 1
 
 TEXTBOX
-1461
-291
-1611
-309
+1324
+294
+1474
+312
 Coherence =
 10
 65.0
 1
 
 TEXTBOX
-1462
-355
-1612
-373
+1325
+358
+1475
+376
 Coherence = 
 10
 95.0
 1
 
 PLOT
-1037
-403
-1451
-553
+900
+406
+1314
+556
 Magnetization vs h
 NIL
 NIL
@@ -836,10 +835,10 @@ PENS
 "C4" 1.0 0 -16449023 true "" ""
 
 SLIDER
-1264
-557
-1356
-590
+1127
+560
+1219
+593
 n_rep
 n_rep
 100
@@ -876,7 +875,7 @@ triangle_credibility
 triangle_credibility
 0
 100
-92.1
+79.8
 0.1
 1
 NIL
