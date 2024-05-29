@@ -440,7 +440,7 @@ to setup2
   create-turtles 1 [
       setxy (0.5 * columns  * x-spacing - x-spacing / 2) ((n_row + 1) * y-spacing + y-spacing / 2)
 
-      set shape "triangle"
+      set shape "illuminati"
       set notoriety choose-probability influencer_probability
 
       set opinion set_opinion first_opinion_percentage
@@ -520,7 +520,6 @@ to uptade_triangle_credibility
     set color set_color credibility opinion
   ]
 end
-
 
 
 
@@ -1108,6 +1107,14 @@ Rectangle -7500403 true true 45 120 255 285
 Rectangle -16777216 true false 120 210 180 285
 Polygon -7500403 true true 15 120 150 15 285 120
 Line -16777216 false 30 120 270 120
+
+illuminati
+false
+0
+Polygon -7500403 true true 0 211 151 1 299 212 1 212 1 212 0 212
+Circle -1 true false 78 62 146
+Circle -7500403 true true 99 98 102
+Circle -16777216 true false 128 138 44
 
 leaf
 false
