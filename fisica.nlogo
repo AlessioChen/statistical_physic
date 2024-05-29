@@ -484,7 +484,6 @@ to piramid_setup
     set n_followers length followers
 
     if n_followers / ( number-of-turtles - 1) > 0.2 [
-      show  n_followers / ( number-of-turtles - 1)
       set triangle_followers lput who triangle_followers
       set followed_people lput triangle_id followed_people
     ]
@@ -520,7 +519,6 @@ to uptade_triangle_credibility
     set color set_color credibility opinion
   ]
 end
-
 
 
 
@@ -1271,7 +1269,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.4.0
+NetLogo 6.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
