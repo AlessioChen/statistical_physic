@@ -6,9 +6,16 @@ globals [ first_opinion
           energy
           max_credibility
           div_credibility
+          triangle_id
+          triangle_influencers_list
         ]
 
-turtles-own[credibility notoriety opinion followed_people followers]
+turtles-own[credibility
+            notoriety
+            opinion
+            followed_people
+            followers
+            ]
 
 
 to setup
@@ -71,7 +78,17 @@ to go
   update-plot
   tick
   update_opinion
+
 end
+
+to new_go
+  update-plot
+  tick
+  new_update_opinion
+  uptade_triangle_credibility
+end
+
+
 
 
 to opinion_setup
@@ -259,11 +276,31 @@ to update_opinion
       init_energy
     ]
   ]
+end
 
+to new_update_opinion
+  let i random number-of-turtles
+  if not member? i triangle_influencers_list [
+    let delta_h get_delta_H i
+    let change set_opinion exp(- delta_h * beta)
 
+    if delta_h != 0 [
+      if delta_h < 0 or change < 0 [
+        ask turtle i[
+          set opinion -1 * opinion
+          set color set_color credibility opinion
+        ]
+        init_energy
+      ]
+    ]
+  ]
 
 
 end
+
+
+
+
 
 to run_simulation
   mag_beta_plot
@@ -349,6 +386,142 @@ to mag_h_plot
 end
 
 
+to setup2
+  clear-all
+  reset-ticks
+  setup-plots
+
+  set number-of-turtles  square_size * square_size + 1
+  let columns floor (sqrt number-of-turtles)
+  let rows ceiling (number-of-turtles / columns)
+  let x-spacing max-pxcor  / (columns)
+  let y-spacing max-pycor / (rows)
+
+  set-default-shape turtles "person"
+  set first_opinion 1
+  set second_opinion -1
+  set first_palette 10
+  set second_palette 80
+  set max_credibility 1
+  set div_credibility 0.2
+  set triangle_id number-of-turtles - 1
+
+
+  let n 0
+  let n_col 1
+  let n_row 0
+  let numero 0
+  let triangle_opinion 1
+
+
+  while [n < number-of-turtles - 1] [
+    if n_col > columns [
+      set n_col 1
+      set n_row n_row + 1
+    ]
+    create-turtles 1 [
+      setxy (n_col  * x-spacing - x-spacing / 2) (n_row * y-spacing + y-spacing / 2)
+
+      set notoriety choose-probability influencer_probability
+
+      set opinion set_opinion first_opinion_percentage
+      set credibility random-normal mean_of_credibility div_credibility
+
+      set color set_color credibility opinion
+
+      set followed_people []
+      set followers []
+    ]
+
+    set n n + 1
+    set n_col n_col + 1
+  ]
+
+  create-turtles 1 [
+      setxy (0.5 * columns  * x-spacing - x-spacing / 2) ((n_row + 1) * y-spacing + y-spacing / 2)
+
+      set shape "triangle"
+      set notoriety choose-probability influencer_probability
+
+      set opinion set_opinion first_opinion_percentage
+      set triangle_opinion opinion
+      set credibility triangle_credibility
+
+      set color set_color credibility opinion
+
+      set followed_people []
+      set followers []
+    ]
+
+
+  ask turtles [
+    if notoriety > 0.2 [
+      set opinion triangle_opinion
+      set color set_color credibility opinion
+    ]
+  ]
+
+
+  update-followed
+  update_size
+  piramid_setup
+
+  ask turtle triangle_id [
+    set triangle_influencers_list followers
+  ]
+
+
+
+
+end
+
+to piramid_setup
+  let n_followers 0
+  let triangle_followers []
+
+
+  ask turtles [
+    set n_followers length followers
+
+    if n_followers / ( number-of-turtles - 1) > 0.2 [
+      show  n_followers / ( number-of-turtles - 1)
+      set triangle_followers lput who triangle_followers
+      set followed_people lput triangle_id followed_people
+    ]
+  ]
+
+  ask turtle triangle_id [
+    set followed_people []
+    set followers triangle_followers
+    set size 3.5
+
+  ]
+end
+
+to change_triangle_opinion
+
+  ask turtle triangle_id [
+    set opinion opinion * (-1)
+    set color set_color credibility opinion
+  ]
+
+   ask turtles [
+    if notoriety > 0.2 [
+      set opinion opinion * (-1)
+      set color set_color credibility opinion
+    ]
+  ]
+
+end
+
+
+to uptade_triangle_credibility
+  ask turtle triangle_id [
+    set credibility triangle_credibility
+    set color set_color credibility opinion
+  ]
+end
+
 
 
 
@@ -382,10 +555,10 @@ ticks
 30.0
 
 BUTTON
-631
-399
-887
-435
+633
+378
+736
+414
 setup
 setup
 NIL
@@ -407,7 +580,7 @@ square_size
 square_size
 0
 20
-16.0
+17.0
 1
 1
 NIL
@@ -422,7 +595,7 @@ influencer_probability
 influencer_probability
 0
 1
-0.05
+0.08
 0.01
 1
 NIL
@@ -452,17 +625,17 @@ first_opinion_percentage
 first_opinion_percentage
 0
 1
-0.0
+0.54
 0.01
 1
 NIL
 HORIZONTAL
 
 BUTTON
-635
-461
-882
-494
+748
+381
+875
+414
 go / stop
 go
 T
@@ -484,32 +657,32 @@ coherence
 coherence
 0
 1.5
-1.0
+0.5
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-635
-504
-884
-537
+637
+483
+886
+516
 beta
 beta
 0
 7
-2.5
+3.3
 0.1
 1
 NIL
 HORIZONTAL
 
 PLOT
-912
-47
-1324
-253
+1037
+29
+1449
+235
 Sum of Spins Over Time
 Time
 Sum of spins
@@ -532,7 +705,7 @@ J
 J
 -1
 1
-0.15
+0.54
 0.01
 1
 NIL
@@ -557,17 +730,17 @@ h
 h
 -1
 1
-0.11
+0.05
 0.01
 1
 NIL
 HORIZONTAL
 
 PLOT
-912
-261
-1325
-411
+1037
+243
+1450
+393
 Magnetization vs Beta
 NIL
 NIL
@@ -585,10 +758,10 @@ PENS
 "C4" 1.0 0 -16449023 true "" ""
 
 BUTTON
-1028
-575
-1137
-608
+1153
+557
+1262
+590
 Run simulation
 run_simulation
 NIL
@@ -602,50 +775,50 @@ NIL
 1
 
 TEXTBOX
-1336
+1461
+263
+1611
 281
-1486
-299
 Coherence = 
 10
 0.0
 0
 
 TEXTBOX
-1336
+1461
+322
+1611
 340
-1486
-358
 Coherence = 
 10
 15.0
 1
 
 TEXTBOX
-1336
+1461
+291
+1611
 309
-1486
-327
 Coherence =
 10
 65.0
 1
 
 TEXTBOX
-1337
+1462
+355
+1612
 373
-1487
-391
 Coherence = 
 10
 95.0
 1
 
 PLOT
-912
-421
-1326
-571
+1037
+403
+1451
+553
 Magnetization vs h
 NIL
 NIL
@@ -663,10 +836,10 @@ PENS
 "C4" 1.0 0 -16449023 true "" ""
 
 SLIDER
-1139
-575
-1231
-608
+1264
+557
+1356
+590
 n_rep
 n_rep
 100
@@ -676,6 +849,72 @@ n_rep
 1
 NIL
 HORIZONTAL
+
+BUTTON
+638
+533
+762
+566
+New setup
+setup2
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+638
+581
+742
+614
+triangle_credibility
+triangle_credibility
+0
+100
+92.1
+0.1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+767
+583
+879
+616
+Change opinion
+change_triangle_opinion
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+782
+534
+881
+567
+New go
+new_go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -797,6 +1036,13 @@ dot
 false
 0
 Circle -7500403 true true 90 90 120
+
+eyeball
+false
+0
+Circle -1 true false 22 20 248
+Circle -7500403 true true 83 81 122
+Circle -16777216 true false 122 120 44
 
 face happy
 false
