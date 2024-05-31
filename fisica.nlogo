@@ -8,6 +8,7 @@ globals [ first_opinion
           div_credibility
           triangle_id
           triangle_influencers_list
+          mouse-clicked?
         ]
 
 turtles-own[credibility
@@ -299,9 +300,6 @@ to new_update_opinion
 end
 
 
-
-
-
 to run_simulation
   mag_beta_plot
   mag_h_plot
@@ -523,10 +521,12 @@ end
 ;INIZIO GOD MODE
 
 to god_mode
-  if mouse-down? [
-    let clicked-turtle one-of turtles-here_
-    if clicked-turtle != nobody [
-      ;show (word "Hai cliccato sulla tartaruga con who: " [who] of clicked-turtle)
+   ifelse mouse-down? [
+    if not mouse-clicked? [
+      set mouse-clicked? true
+      let clicked-turtle one-of turtles-here_
+
+      if clicked-turtle != nobody [
       ask turtle [who] of clicked-turtle[
         if change_credibility [
           set credibility imposed_credibility
@@ -539,8 +539,10 @@ to god_mode
         ]
 
       ]
-
     ]
+    ]
+  ] [
+    set mouse-clicked? false
   ]
 end
 
@@ -974,7 +976,7 @@ SWITCH
 478
 change_credibility
 change_credibility
-0
+1
 1
 -1000
 
@@ -987,7 +989,7 @@ imposed_credibility
 imposed_credibility
 0
 1
-0.07
+0.22
 0.01
 1
 NIL
