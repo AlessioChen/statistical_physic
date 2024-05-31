@@ -520,8 +520,46 @@ to uptade_triangle_credibility
   ]
 end
 
+;GOD MODE
+
+to god_mode
+  if mouse-down? [
+    let clicked-turtle one-of turtles-here_
+    if clicked-turtle != nobody [
+      show (word "Hai cliccato sulla tartaruga con who: " [who] of clicked-turtle)
+      ask turtle [who] of clicked-turtle[
+        if change_credibility [
+          set credibility imposed_credibility
+        ]
+        if change_opinion [
+          flip_opinion [who] of clicked-turtle
+        ]
+        if change_credibility or change_opinion [
+          set color set_color credibility opinion
+        ]
+
+      ]
+
+    ]
+  ]
+end
+
+to-report turtles-here_
+  report turtles with [round pxcor = round mouse-xcor and round pycor = round mouse-ycor]
+end
+
+;GOD MODE
 
 
+to flip_opinion [id]
+  ask turtle id [
+    ifelse opinion = first_opinion [
+      set opinion second_opinion
+    ][
+      set opinion first_opinion
+    ]
+  ]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 15
@@ -591,7 +629,7 @@ influencer_probability
 influencer_probability
 0
 1
-0.08
+0.05
 0.01
 1
 NIL
@@ -653,7 +691,7 @@ coherence
 coherence
 0
 1.5
-0.5
+0.0
 0.01
 1
 NIL
@@ -911,6 +949,60 @@ NIL
 NIL
 NIL
 1
+
+BUTTON
+1350
+408
+1444
+441
+God Mode
+god_mode
+T
+1
+T
+TURTLE
+NIL
+NIL
+NIL
+NIL
+1
+
+SWITCH
+1350
+445
+1505
+478
+change_credibility
+change_credibility
+0
+1
+-1000
+
+SLIDER
+1349
+480
+1507
+513
+imposed_credibility
+imposed_credibility
+0
+1
+0.07
+0.01
+1
+NIL
+HORIZONTAL
+
+SWITCH
+1347
+544
+1510
+577
+change_opinion
+change_opinion
+1
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -1269,7 +1361,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.4
+NetLogo 6.4.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
