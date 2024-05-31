@@ -301,6 +301,7 @@ end
 
 
 to run_simulation
+  set first_opinion_percentage 1
   mag_beta_plot
   mag_h_plot
 end
@@ -614,9 +615,9 @@ SLIDER
 69
 square_size
 square_size
-0
+10
 20
-19.0
+20.0
 1
 1
 NIL
@@ -661,7 +662,7 @@ first_opinion_percentage
 first_opinion_percentage
 0
 1
-0.54
+1.0
 0.01
 1
 NIL
@@ -693,7 +694,7 @@ coherence
 coherence
 0
 1.5
-0.0
+0.5
 0.01
 1
 NIL
@@ -708,7 +709,7 @@ beta
 beta
 0
 7
-3.3
+0.0
 0.1
 1
 NIL
@@ -815,7 +816,7 @@ TEXTBOX
 266
 1474
 284
-Coherence = 
+Coherence = 1.0
 10
 0.0
 0
@@ -825,7 +826,7 @@ TEXTBOX
 325
 1474
 343
-Coherence = 
+Coherence = 0.6
 10
 15.0
 1
@@ -835,7 +836,7 @@ TEXTBOX
 294
 1474
 312
-Coherence =
+Coherence = 0.7
 10
 65.0
 1
@@ -845,7 +846,7 @@ TEXTBOX
 358
 1475
 376
-Coherence = 
+Coherence = 0.5
 10
 95.0
 1
