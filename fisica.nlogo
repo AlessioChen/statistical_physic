@@ -520,13 +520,13 @@ to uptade_triangle_credibility
   ]
 end
 
-;GOD MODE
+;INIZIO GOD MODE
 
 to god_mode
   if mouse-down? [
     let clicked-turtle one-of turtles-here_
     if clicked-turtle != nobody [
-      show (word "Hai cliccato sulla tartaruga con who: " [who] of clicked-turtle)
+      ;show (word "Hai cliccato sulla tartaruga con who: " [who] of clicked-turtle)
       ask turtle [who] of clicked-turtle[
         if change_credibility [
           set credibility imposed_credibility
@@ -548,7 +548,7 @@ to-report turtles-here_
   report turtles with [round pxcor = round mouse-xcor and round pycor = round mouse-ycor]
 end
 
-;GOD MODE
+;FINE GOD MODE
 
 
 to flip_opinion [id]
